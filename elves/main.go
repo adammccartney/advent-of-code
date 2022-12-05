@@ -107,13 +107,40 @@ func sumTotalInArray(array []int) int {
 	return total
 }
 
+func quickSort(array []Elf) []Elf {
+	if len(array) <= 1 {
+		return array
+	}
+	pivot := array[0]
+	var left, right []Elf
+	for _, item := range array[1:] {
+		if item.total < pivot.total {
+			left = append(left, item)
+		} else {
+			right = append(right, item)
+		}
+	}
+	return append(append(quickSort(left), pivot), quickSort(right)...)
+}
+
+// Day 1 info
 func infoElfMostSnacks(elves []Elf) {
 	elfi, largestTotal := findLargestTotal(elves)
 	fattestElf := elves[elfi]
 	fmt.Println("Largest total: ", largestTotal)
 	fmt.Println("Items: ", fattestElf.items)
 	fmt.Println("Largest total from elf: ", fattestElf.total)
+}
 
+// Day 2 info
+func infoTopThreeElves(elves []Elf) {
+	sortedElves := quickSort(elves)
+	total := 0
+	for i := len(sortedElves) - 1; i >= len(sortedElves)-3; i-- {
+		fmt.Println(sortedElves[i].total)
+		total += sortedElves[i].total
+	}
+	fmt.Println("Total of top three elves: ", total)
 }
 
 func main() {
@@ -121,4 +148,5 @@ func main() {
 	elves := makeElves(lines, []Elf{})
 	// Day 1
 	infoElfMostSnacks(elves)
+	infoTopThreeElves(elves)
 }
