@@ -1,29 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
+
+	"github.com/adammccartney/aoc2022/scanner"
 )
-
-func scanFile(filename string, lines []string) []string {
-	// Scans a file, strips newlines and stores lines in slice
-	// Returns slice of lines
-	f, err := os.Open(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		read_line := s.Text()
-		lines = append(lines, read_line)
-	}
-	return lines
-}
 
 func isnumber(line string) bool {
 	ret := false
@@ -144,9 +127,10 @@ func infoTopThreeElves(elves []Elf) {
 }
 
 func main() {
-	lines := scanFile("input.txt", []string{})
+	lines := scanner.ScanFileStrings("input.txt", []string{})
 	elves := makeElves(lines, []Elf{})
 	// Day 1
 	infoElfMostSnacks(elves)
+	// Day 2
 	infoTopThreeElves(elves)
 }
