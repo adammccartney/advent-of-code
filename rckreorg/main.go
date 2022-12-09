@@ -12,6 +12,22 @@ func splitLine(line string) (string, string) {
 	return line[:mid], line[mid:]
 }
 
+func convertStringToRunes(s string, converter map[rune]rune) map[rune]rune {
+	for _, r := range s {
+		converter[r] = r
+	}
+	return converter
+}
+
+func stringToIntArray(s string) []int {
+	var arr []int
+	for _, r := range s {
+		prio := getRunePriority(r)
+		arr = append(arr, prio)
+	}
+	return arr
+}
+
 func isLowercase(r rune) bool {
 	return r >= 'a' && r <= 'z'
 }
@@ -33,48 +49,121 @@ func getRunePriority(r rune) int {
 	return -1
 }
 
-// Iterate and find the common character pairs
-func findCommonRune(a, b string) (int, int) {
-	for i, r := range a {
-		if r == rune(b[i]) {
-			return i, getRunePriority(r)
-		}
+func getPriorityRune(p int) rune {
+	if p > 26 {
+		return rune(p + 38)
 	}
-	return -1, -1
+	return rune(p + 96)
 }
 
-func sortString(s string) string {
-	// Convert the string to a rune slice
-	r := []rune(s)
+type Compartment struct {
+	contents   string
+	priorities []int
+}
 
-	// Sort the slice
-	for i := 0; i < len(r)-1; i++ {
-		for j := i + 1; j < len(r); j++ {
-			if getRunePriority(r[i]) > getRunePriority(r[j]) {
-				r[i], r[j] = r[j], r[i]
+func initCompartment(l int) Compartment {
+	return Compartment{
+		contents:   "",
+		priorities: make([]int, l),
+	}
+}
+
+func translatePriorities(priorities []int, out string) string {
+	for _, p := range priorities {
+		out += string(getPriorityRune(p))
+	}
+	return out
+}
+
+// Basic find common ints routine
+// runs in O(n^2) time
+// Possible Optimizations:
+// 1. Sort the arrays, then use a binary search to find the common ints (O(nlogn))
+// 2. Use a map to store the ints, then iterate over the other array to find
+// the common ints (O(n))
+func findCommonInt(a []int, b []int) []int {
+	var out []int
+	for _, v := range a {
+		for _, w := range b {
+			if v == w {
+				out = append(out, v)
 			}
 		}
 	}
+	return out
+}
 
-	// Convert the slice back to a string
-	return string(r)
+func sliceEqual(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+type Rucksack struct {
+	lcomparts []Compartment
+	rcomparts []Compartment
+	common    []int
+}
+
+func initRucksack(l int) Rucksack {
+	return Rucksack{
+		lcomparts: make([]Compartment, l),
+		rcomparts: make([]Compartment, l),
+		common:    make([]int, l),
+	}
+}
+
+func fillCompartment(line string, c Compartment) Compartment {
+	c.contents = line
+	c.priorities = stringToIntArray(line)
+	return c
+}
+
+func makeCompartments(line string) []Compartment {
+	l, r := splitLine(line)
+	lc := initCompartment(len(l))
+	rc := initCompartment(len(r))
+	lc = fillCompartment(l, lc)
+	rc = fillCompartment(r, rc)
+	return []Compartment{lc, rc}
 }
 
 // Read in the lines, and split them into two compartments
 // Sort the compartments, return the rucksack
-func fillRucksack(lines []string) [][2]string {
-	r := make([][2]string, len(lines))
+func fillRucksack(lines []string, r Rucksack) Rucksack {
+	r = initRucksack(len(lines))
 	for i, line := range lines {
-		a, b := splitLine(line)
-		r[i][0] = sortString(a)
-		r[i][1] = sortString(b)
+		comparts := makeCompartments(line)
+		r.lcomparts[i] = comparts[0]
+		r.rcomparts[i] = comparts[1]
+		common := findCommonInt(comparts[0].priorities, comparts[1].priorities)
+		r.common[i] = common[0]
 	}
 	return r
 }
 
-func main() {
+func sumCommon(r Rucksack) int {
+	sum := 0
+	for _, v := range r.common {
+		sum += v
+	}
+	return sum
+}
 
-	lines := scanner.ScanFileStrings("test.txt", []string{})
-	r := fillRucksack(lines)
-	fmt.Println(r)
+func calculateTotalFromInput(lines []string) int {
+	r := initRucksack(len(lines))
+	r = fillRucksack(lines, r)
+	return sumCommon(r)
+}
+
+func main() {
+	lines := scanner.ScanFileStrings("input.txt", []string{})
+	total := calculateTotalFromInput(lines)
+	fmt.Println("Total: ", total)
 }
