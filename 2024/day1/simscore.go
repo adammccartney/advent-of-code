@@ -9,10 +9,6 @@ import (
 	"strconv"
 )
 
-func scan() {
-
-}
-
 func main() {
 	// read from stdin 
 	scanner := bufio.NewScanner(os.Stdin)
