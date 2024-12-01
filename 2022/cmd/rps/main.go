@@ -1,26 +1,8 @@
-tpackage main
+package main
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 )
-
-func scanFile(input string, lines []rune) []rune {
-	f, err := os.Open(input)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		read_line := s.Text()
-		asrune := []rune(read_line)
-		lines = append(lines, asrune[0])
-	}
-	return lines
-}
 
 type Results struct {
 	op []rune
@@ -34,9 +16,9 @@ func initResults() Results {
 func getResults() Results {
 	results := initResults()
 	opInput := "op.input.txt"
-	opLines := scanFile(opInput, []rune{})
+	opLines := scanner.scanFile(opInput, []rune{})
 	meInput := "me.input.txt"
-	meLines := scanFile(meInput, []rune{})
+	meLines := scanner.scanFile(meInput, []rune{})
 	if len(opLines) != len(meLines) {
 		panic("op and me input files are not the same length")
 	}
