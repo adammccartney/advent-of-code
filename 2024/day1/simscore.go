@@ -22,8 +22,9 @@ func main() {
 	for scanner.Scan() {
 		// split here, make two slices
 		parts := strings.Split(scanner.Text(), " ")
+		l := len(parts)
 		lhs = append(lhs, parts[0])
-		k := parts[1]
+		k := parts[l-1]
 		nocRhs[k] += 1
 	}
 
@@ -38,12 +39,9 @@ func main() {
 	sum := 0
 	for i := range lhs {
 		key := lhs[i]
-		fmt.Println(key)
 		n, _ := strconv.Atoi(key)
 		occursRhs := nocRhs[key]
-		fmt.Println(occursRhs)
 		simscore := n * occursRhs
-		fmt.Println(simscore)
 		sum+=simscore
 	}
 	fmt.Printf("Similarity score sum: %d\n", sum)
